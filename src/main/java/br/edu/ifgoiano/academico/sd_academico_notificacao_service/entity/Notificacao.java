@@ -59,12 +59,12 @@ public class Notificacao {
      */
     public Notificacao(Long alunoId, Long turmaId, String tipo, String canal, String mensagem, String status) {
         this.alunoId = alunoId;
-        this.turmaId = turmaId;
-        this.tipo = tipo;
-        this.canal = canal;
-        this.mensagem = mensagem;
-        this.status = status;
         this.dataCriacao = LocalDateTime.now();
+        this.tipo = tipo;
+        this.mensagem = mensagem;
+        this.turmaId = turmaId;
+        this.canal = canal;
+        this.status = status;
     }
 
     // Getters e Setters
@@ -154,4 +154,5 @@ public class Notificacao {
                 '}';
     }
 }
+
 

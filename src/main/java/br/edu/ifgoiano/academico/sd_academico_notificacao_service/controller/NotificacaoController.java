@@ -3,6 +3,9 @@ package br.edu.ifgoiano.academico.sd_academico_notificacao_service.controller;
 import br.edu.ifgoiano.academico.sd_academico_notificacao_service.dto.NotificacaoResponseDTO;
 import br.edu.ifgoiano.academico.sd_academico_notificacao_service.entity.Notificacao;
 import br.edu.ifgoiano.academico.sd_academico_notificacao_service.repository.NotificacaoRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/notificacoes")
+@Tag(name = "Notificações", description = "Consulta das notificações geradas a partir dos eventos de matrícula")
 public class NotificacaoController {
 
     // Logger para rastreamento de requisições
@@ -35,6 +39,7 @@ public class NotificacaoController {
      * @return lista de todas as notificações
      */
     @GetMapping
+    @Operation(summary = "Listar notificações", description = "Retorna todas as notificações registradas.")
     public ResponseEntity<List<NotificacaoResponseDTO>> listarTodasAsNotificacoes() {
         logger.info("[NOTIFICACAO-SERVICE] Listando todas as notificações");
         return ResponseEntity.ok(paraResponse(notificacaoRepository.findAll()));
@@ -46,7 +51,9 @@ public class NotificacaoController {
      * @return notificação encontrada ou 404 se não existir
      */
     @GetMapping("/{id}")
-    public ResponseEntity<NotificacaoResponseDTO> buscarNotificacao(@PathVariable Long id) {
+    @Operation(summary = "Buscar notificação por ID", description = "Retorna a notificação com o ID informado, ou 404.")
+    public ResponseEntity<NotificacaoResponseDTO> buscarNotificacao(
+            @Parameter(description = "ID da notificação", example = "1") @PathVariable Long id) {
         logger.info("[NOTIFICACAO-SERVICE] Buscando notificação ID: {}", id);
         return notificacaoRepository.findById(id)
                 .map(this::paraResponse)
@@ -60,7 +67,9 @@ public class NotificacaoController {
      * @return lista de notificações do aluno
      */
     @GetMapping("/aluno/{alunoId}")
-    public ResponseEntity<List<NotificacaoResponseDTO>> listarPorAluno(@PathVariable Long alunoId) {
+    @Operation(summary = "Listar notificações por aluno", description = "Retorna as notificações de um aluno.")
+    public ResponseEntity<List<NotificacaoResponseDTO>> listarPorAluno(
+            @Parameter(description = "ID do aluno", example = "1") @PathVariable Long alunoId) {
         logger.info("[NOTIFICACAO-SERVICE] Listando notificações do aluno: {}", alunoId);
         return ResponseEntity.ok(paraResponse(notificacaoRepository.findByAlunoId(alunoId)));
     }
@@ -71,7 +80,9 @@ public class NotificacaoController {
      * @return lista de notificações com o status especificado
      */
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<NotificacaoResponseDTO>> listarPorStatus(@PathVariable String status) {
+    @Operation(summary = "Listar notificações por status", description = "Retorna as notificações com o status informado.")
+    public ResponseEntity<List<NotificacaoResponseDTO>> listarPorStatus(
+            @Parameter(description = "Status da notificação", example = "PROCESSADA") @PathVariable String status) {
         logger.info("[NOTIFICACAO-SERVICE] Listando notificações com status: {}", status);
         return ResponseEntity.ok(paraResponse(notificacaoRepository.findByStatus(status)));
     }

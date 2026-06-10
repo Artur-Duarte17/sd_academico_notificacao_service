@@ -1,5 +1,6 @@
 package br.edu.ifgoiano.academico.sd_academico_notificacao_service.controller;
 
+import br.edu.ifgoiano.academico.sd_academico_notificacao_service.dto.NotificacaoResponseDTO;
 import br.edu.ifgoiano.academico.sd_academico_notificacao_service.entity.Notificacao;
 import br.edu.ifgoiano.academico.sd_academico_notificacao_service.repository.NotificacaoRepository;
 import org.slf4j.Logger;
@@ -19,7 +20,7 @@ public class NotificacaoController {
 
     // Logger para rastreamento de requisições
     private static final Logger logger = LoggerFactory.getLogger(NotificacaoController.class);
-    
+
     private final NotificacaoRepository notificacaoRepository;
 
     /**
@@ -34,10 +35,9 @@ public class NotificacaoController {
      * @return lista de todas as notificações
      */
     @GetMapping
-    public ResponseEntity<List<Notificacao>> listarTodasAsNotificacoes() {
+    public ResponseEntity<List<NotificacaoResponseDTO>> listarTodasAsNotificacoes() {
         logger.info("[NOTIFICACAO-SERVICE] Listando todas as notificações");
-        List<Notificacao> notificacoes = notificacaoRepository.findAll();
-        return ResponseEntity.ok(notificacoes);
+        return ResponseEntity.ok(paraResponse(notificacaoRepository.findAll()));
     }
 
     /**
@@ -46,9 +46,10 @@ public class NotificacaoController {
      * @return notificação encontrada ou 404 se não existir
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Notificacao> buscarNotificacao(@PathVariable Long id) {
+    public ResponseEntity<NotificacaoResponseDTO> buscarNotificacao(@PathVariable Long id) {
         logger.info("[NOTIFICACAO-SERVICE] Buscando notificação ID: {}", id);
         return notificacaoRepository.findById(id)
+                .map(this::paraResponse)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -59,10 +60,9 @@ public class NotificacaoController {
      * @return lista de notificações do aluno
      */
     @GetMapping("/aluno/{alunoId}")
-    public ResponseEntity<List<Notificacao>> listarPorAluno(@PathVariable Long alunoId) {
+    public ResponseEntity<List<NotificacaoResponseDTO>> listarPorAluno(@PathVariable Long alunoId) {
         logger.info("[NOTIFICACAO-SERVICE] Listando notificações do aluno: {}", alunoId);
-        List<Notificacao> notificacoes = notificacaoRepository.findByAlunoId(alunoId);
-        return ResponseEntity.ok(notificacoes);
+        return ResponseEntity.ok(paraResponse(notificacaoRepository.findByAlunoId(alunoId)));
     }
 
     /**
@@ -71,10 +71,29 @@ public class NotificacaoController {
      * @return lista de notificações com o status especificado
      */
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<Notificacao>> listarPorStatus(@PathVariable String status) {
+    public ResponseEntity<List<NotificacaoResponseDTO>> listarPorStatus(@PathVariable String status) {
         logger.info("[NOTIFICACAO-SERVICE] Listando notificações com status: {}", status);
-        List<Notificacao> notificacoes = notificacaoRepository.findByStatus(status);
-        return ResponseEntity.ok(notificacoes);
+        return ResponseEntity.ok(paraResponse(notificacaoRepository.findByStatus(status)));
+    }
+
+    /**
+     * Converte a entidade Notificacao no DTO de resposta exposto pela API.
+     */
+    private NotificacaoResponseDTO paraResponse(Notificacao notificacao) {
+        NotificacaoResponseDTO response = new NotificacaoResponseDTO();
+        response.setId(notificacao.getId());
+        response.setAlunoId(notificacao.getAlunoId());
+        response.setTurmaId(notificacao.getTurmaId());
+        response.setTipo(notificacao.getTipo());
+        response.setCanal(notificacao.getCanal());
+        response.setMensagem(notificacao.getMensagem());
+        response.setStatus(notificacao.getStatus());
+        response.setDataCriacao(notificacao.getDataCriacao());
+        response.setDataEnvio(notificacao.getDataEnvio());
+        return response;
+    }
+
+    private List<NotificacaoResponseDTO> paraResponse(List<Notificacao> notificacoes) {
+        return notificacoes.stream().map(this::paraResponse).toList();
     }
 }
-

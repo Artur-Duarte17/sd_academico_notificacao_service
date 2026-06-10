@@ -1,8 +1,6 @@
 package br.edu.ifgoiano.academico.sd_academico_notificacao_service.config;
 
 import org.springframework.amqp.core.*;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
-import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.amqp.core.Declarables;
@@ -74,15 +72,10 @@ public class RabbitMQConfig {
                 .with(ROUTING_KEY_MATRICULA_CANCELADA);
     }
 
-    // ======================
-    // JSON CONVERTER (ESSENCIAL)
-    // ======================
-    @Bean
-    public MessageConverter jsonMessageConverter() {
-        Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
-        converter.setAlwaysConvertToInferredType(true);
-        return converter;
-    }
+    // Observação: NÃO declaramos um Jackson2JsonMessageConverter global aqui.
+    // Os listeners (EventoNotificacaoListener / NotificacaoListener) recebem a
+    // mensagem como String (texto JSON) e fazem o parse manual com ObjectMapper.
+    // Um converter JSON global entraria em conflito com esses listeners de String.
 
     @Bean
     public Declarables loggingDeclarables() {
